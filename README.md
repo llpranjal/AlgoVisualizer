@@ -2,15 +2,26 @@
 
 A simple web application built with React to visualize classic sorting algorithms.
 
- 
-*(Replace with a real screenshot of your app!)*
+---
+
+## Live Demo
+
+Here's a quick look at the visualizer in action.
+
+**Before Sorting:** A randomly generated, unsorted array.
+![Unsorted Array](./public/before.png)
+
+**After Sorting:** The same array, now sorted, with all bars colored to indicate completion.
+![Sorted Array](./public/after.png)
 
 ---
 
 ## Features
 
 *   **Visualize Algorithms**: Watch Merge Sort, Quick Sort, Heap Sort, and Bubble Sort in action.
-*   **Interactive Controls**: Adjust the array size and animation speed.
+*   **Interactive Controls**: Fine-tune your visualization experience with two simple sliders:
+    *   **Array Size Slider**: Increase or decrease the number of elements in the array to see how algorithm complexity affects performance.
+    *   **Animation Speed Slider**: Slow down the animation to carefully observe every step, or speed it up for a quick overview of the sorting process.
 *   **Dynamic Data**: Generate a new random array at any time.
 
 ---

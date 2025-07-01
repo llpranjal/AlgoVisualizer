@@ -208,9 +208,7 @@ const simulateAnimations = (arr, animations) => {
     <div className="visualizer-container">
       <div className="header">
         <h1>Algorithm Visualizer</h1>
-        <p>Educational tool for understanding sorting algorithms</p>
       </div>
-      
       <div className="controls">
         <div className="control-group">
           <label>Array Size: {arraySize}</label>
