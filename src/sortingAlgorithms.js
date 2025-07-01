@@ -79,28 +79,19 @@ function doMerge(
 // Bubble Sort Implementation
 export function getBubbleSortAnimations(array) {
   const animations = [];
-  const arr = array.slice();
-  const n = arr.length;
-  
+  if (array.length <= 1) return animations;
+  const n = array.length;
   for (let i = 0; i < n - 1; i++) {
     for (let j = 0; j < n - i - 1; j++) {
-      // Push comparison animation
-      animations.push([j, j + 1]);
-      animations.push([j, j + 1]);
-      
-      if (arr[j] > arr[j + 1]) {
-        // Push swap animation
-        animations.push([j, arr[j + 1]]);
-        animations.push([j + 1, arr[j]]);
-        
-        // Swap elements
-        const temp = arr[j];
-        arr[j] = arr[j + 1];
-        arr[j + 1] = temp;
-      } else {
-        // Push no-swap animation (maintain same values)
-        animations.push([j, arr[j]]);
-        animations.push([j + 1, arr[j + 1]]);
+      // Highlight bars for comparison
+      animations.push(['compare', j, j + 1]);
+      // Revert color
+      animations.push(['revert', j, j + 1]);
+      if (array[j] > array[j + 1]) {
+        // Push swap command
+        animations.push(['swap', j, j + 1]);
+        // Perform swap on the local array to keep track
+        swap(array, j, j + 1);
       }
     }
   }
@@ -108,127 +99,107 @@ export function getBubbleSortAnimations(array) {
 }
 
 // Quick Sort Implementation
+// ... existing code for other algorithms ...
+
 export function getQuickSortAnimations(array) {
   const animations = [];
-  const arr = array.slice();
-  quickSortHelper(arr, 0, arr.length - 1, animations);
+  if (array.length <= 1) return animations;
+  quickSortHelper(array, 0, array.length - 1, animations);
   return animations;
 }
 
-function quickSortHelper(arr, low, high, animations) {
-  if (low < high) {
-    const pi = partition(arr, low, high, animations);
-    quickSortHelper(arr, low, pi - 1, animations);
-    quickSortHelper(arr, pi + 1, high, animations);
-  }
+function quickSortHelper(mainArray, startIdx, endIdx, animations) {
+  if (startIdx >= endIdx) return;
+  const pivotIdx = partition(mainArray, startIdx, endIdx, animations);
+  quickSortHelper(mainArray, startIdx, pivotIdx - 1, animations);
+  quickSortHelper(mainArray, pivotIdx + 1, endIdx, animations);
 }
 
-function partition(arr, low, high, animations) {
-  const pivot = arr[high];
-  let i = low - 1;
+function partition(mainArray, startIdx, endIdx, animations) {
+  let pivotValue = mainArray[endIdx];
+  let pivotIdx = startIdx;
   
-  for (let j = low; j < high; j++) {
-    // Push comparison animation
-    animations.push([j, high]);
-    animations.push([j, high]);
+  for (let i = startIdx; i < endIdx; i++) {
+    // Push indices to highlight them for comparison
+    animations.push(['compare', i, endIdx]);
+    // Push them again to revert color
+    animations.push(['revert', i, endIdx]);
     
-    if (arr[j] < pivot) {
-      i++;
-      // Push swap animation
-      animations.push([i, arr[j]]);
-      animations.push([j, arr[i]]);
-      
-      // Swap elements
-      const temp = arr[i];
-      arr[i] = arr[j];
-      arr[j] = temp;
-    } else {
-      // Push no-swap animation
-      animations.push([j, arr[j]]);
-      animations.push([j, arr[j]]);
+    if (mainArray[i] < pivotValue) {
+      // Push swap animation: ['swap', index1, index2]
+      // The actual height values will be retrieved from the working array
+      // in the main component, which is more reliable.
+      animations.push(['swap', i, pivotIdx]);
+      swap(mainArray, i, pivotIdx);
+      pivotIdx++;
     }
   }
   
-  // Final swap with pivot
-  animations.push([i + 1, high]);
-  animations.push([i + 1, high]);
-  animations.push([i + 1, arr[high]]);
-  animations.push([high, arr[i + 1]]);
+  // Final swap for the pivot
+  animations.push(['swap', pivotIdx, endIdx]);
+  swap(mainArray, pivotIdx, endIdx);
   
-  const temp = arr[i + 1];
-  arr[i + 1] = arr[high];
-  arr[high] = temp;
-  
-  return i + 1;
+  return pivotIdx;
 }
+
+
 
 // Heap Sort Implementation
 export function getHeapSortAnimations(array) {
   const animations = [];
-  const arr = array.slice();
-  const n = arr.length;
+  if (array.length <= 1) return animations;
   
-  // Build heap
+  const n = array.length;
+  // Build the max heap
   for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
-    heapify(arr, n, i, animations);
+    heapify(array, n, i, animations);
   }
-  
-  // Extract elements from heap
+
+  // Extract elements from heap one by one
   for (let i = n - 1; i > 0; i--) {
-    // Push comparison animation
-    animations.push([0, i]);
-    animations.push([0, i]);
-    
     // Move current root to end
-    animations.push([0, arr[i]]);
-    animations.push([i, arr[0]]);
-    
-    const temp = arr[0];
-    arr[0] = arr[i];
-    arr[i] = temp;
-    
+    animations.push(['swap', 0, i]);
+    swap(array, 0, i);
     // Call heapify on the reduced heap
-    heapify(arr, i, 0, animations);
+    heapify(array, i, 0, animations);
   }
-  
   return animations;
 }
 
-function heapify(arr, n, i, animations) {
-  let largest = i;
+function heapify(array, n, i, animations) {
+  let largest = i; // Initialize largest as root
   const left = 2 * i + 1;
   const right = 2 * i + 2;
-  
+
+  // If left child is larger than root
   if (left < n) {
-    animations.push([left, largest]);
-    animations.push([left, largest]);
-    if (arr[left] > arr[largest]) {
+    animations.push(['compare', left, largest]);
+    animations.push(['revert', left, largest]);
+    if (array[left] > array[largest]) {
       largest = left;
     }
-    animations.push([left, arr[left]]);
-    animations.push([largest, arr[largest]]);
   }
-  
+
+  // If right child is larger than largest so far
   if (right < n) {
-    animations.push([right, largest]);
-    animations.push([right, largest]);
-    if (arr[right] > arr[largest]) {
+    animations.push(['compare', right, largest]);
+    animations.push(['revert', right, largest]);
+    if (array[right] > array[largest]) {
       largest = right;
     }
-    animations.push([right, arr[right]]);
-    animations.push([largest, arr[largest]]);
   }
-  
+
+  // If largest is not root
   if (largest !== i) {
-    animations.push([i, largest]);
-    animations.push([i, largest]);
-    animations.push([i, arr[largest]]);
-    animations.push([largest, arr[i]]);
-    
-    const temp = arr[i];
-    arr[i] = arr[largest];
-    arr[largest] = temp;
-    
-    heapify(arr, n, largest, animations);
+    animations.push(['swap', i, largest]);
+    swap(array, i, largest);
+    // Recursively heapify the affected sub-tree
+    heapify(array, n, largest, animations);
   }
+}
+
+function swap(array, i, j) {
+  const temp = array[i];
+  array[i] = array[j];
+  array[j] = temp;
 }
